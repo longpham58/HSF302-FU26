@@ -61,5 +61,14 @@ public class Main {
             System.out.println("Da bat duoc loi trung email nhu ky vong: "
                     + ex.getClass().getSimpleName());
         }
+
+        // ===== TODO 0.10: kiem chung cac cau query co dieu kien =====
+        Employee foundByEmail = dao.findByEmail("trung@fpt.edu.vn");
+        System.out.println("Tim theo email: " + foundByEmail);
+
+        System.out.println("Nhan vien active co luong > 10500000:");
+        for (Employee employee : dao.findBySalaryGreaterThanAndActive(new BigDecimal("10500000"))) {
+            System.out.println(employee);
+        }
     }
 }
