@@ -47,7 +47,6 @@ public class Main {
         Employee afterDelete = dao.findById(emp.getId());
         System.out.println("Sau khi xoa, tim lai: " + afterDelete); // ky vong: null
 
-        // ===== TODO 0.9: kiem chung unique constraint tren email =====
         Employee dup1 = new Employee("User 1", "trung@fpt.edu.vn",
                 new BigDecimal("10000000"), Gender.FEMALE, LocalDate.now());
         Employee dup2 = new Employee("User 2", "trung@fpt.edu.vn", // trung email
@@ -62,7 +61,6 @@ public class Main {
                     + ex.getClass().getSimpleName());
         }
 
-        // ===== TODO 0.10: kiem chung cac cau query co dieu kien =====
         Employee foundByEmail = dao.findByEmail("trung@fpt.edu.vn");
         System.out.println("Tim theo email: " + foundByEmail);
 

@@ -274,7 +274,7 @@ public class Employee {
     <persistence-unit name="hsf302FU" transaction-type="RESOURCE_LOCAL">
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
 
-        <class>fu.se123456.pojo.Employee</class>
+        <class>fu.de180871.pojo.Employee</class>
 
         <properties>
             <property name="jakarta.persistence.jdbc.driver"

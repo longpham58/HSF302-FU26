@@ -11,7 +11,7 @@ public class EmployeeDAO {
     private static final EntityManagerFactory emf =
             Persistence.createEntityManagerFactory("hsf302FU");
 
-    // ---------- CREATE (TODO 0.3) ----------
+
     public void save(Employee e) {
         // Truoc dong nay: e dang o trang thai NEW/TRANSIENT
         EntityManager em = emf.createEntityManager();
@@ -27,7 +27,6 @@ public class EmployeeDAO {
         }
     }
 
-    // ---------- READ (TODO 0.4) ----------
     public Employee findById(Long id) {
         EntityManager em = emf.createEntityManager();
         try {
@@ -47,7 +46,6 @@ public class EmployeeDAO {
         }
     }
 
-    // ---------- READ co dieu kien (TODO 0.5) ----------
     public Employee findByEmail(String email) {
         EntityManager em = emf.createEntityManager();
         try {
@@ -74,7 +72,6 @@ public class EmployeeDAO {
         }
     }
 
-    // ---------- UPDATE (TODO 0.6) ----------
     public Employee update(Employee e) {
         // e truyen vao co the dang DETACHED (lay tu findById() o mot EntityManager khac)
         EntityManager em = emf.createEntityManager();
@@ -91,7 +88,6 @@ public class EmployeeDAO {
         }
     }
 
-    // ---------- DELETE (TODO 0.7) ----------
     public void delete(Long id) {
         EntityManager em = emf.createEntityManager();
         try {
