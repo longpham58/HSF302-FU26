@@ -19,7 +19,7 @@ public class Department {
     private String location;
 
     // Quan hệ 1 - Nhiều với Employee
-    @OneToMany(mappedBy = "department", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "department", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Employee> employees = new ArrayList<>();
 
     // Constructor rỗng (bắt buộc đối với JPA)
