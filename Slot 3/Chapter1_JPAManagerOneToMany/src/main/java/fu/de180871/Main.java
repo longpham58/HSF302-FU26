@@ -16,30 +16,46 @@ public class Main {
         DepartmentDAO departmentDAO = new DepartmentDAO();
         EmployeeDAO employeeDAO = new EmployeeDAO();
 
-        System.out.println("=== 1. TAO PHONG BAN VA THEM NHAN VIEN (CASCADE SAVE) ===");
-        Department dept = new Department("Software Engineering", "Da Nang");
-        Employee emp1 = new Employee("Nguyen Van A", new BigDecimal("1500.00"), LocalDate.now(), "a.nguyen@company.com", Gender.MALE, true);
-        Employee emp2 = new Employee("Tran Thi B", new BigDecimal("1800.00"), LocalDate.now(), "b.tran@company.com", Gender.FEMALE, true);
+        // 1) Tạo Department + 3 Employee (đúng thứ tự tham số constructor)
+        Department it = new Department("Marketing", "Ha Noi");
 
-        dept.addEmployee(emp1);
-        dept.addEmployee(emp2);
+        Employee e1 = new Employee("Nguyen Van A", new BigDecimal("15000000"), LocalDate.of(2022, 1, 10),
+                "aa.nguyen@company.com", Gender.MALE, true);
+        Employee e2 = new Employee("Tran Thi B", new BigDecimal("18000000"), LocalDate.of(2021, 6, 1),
+                "bb.tran@company.com", Gender.FEMALE, true);
+        Employee e3 = new Employee("Le Van C", new BigDecimal("12000000"), LocalDate.of(2023, 3, 15),
+                "cc.le@company.com", Gender.OTHER, true);
 
-        departmentDAO.save(dept);
-        System.out.println("-> Luu thanh cong Department ID: " + dept.getId());
+        it.addEmployee(e1);
+        it.addEmployee(e2);
+        it.addEmployee(e3);
 
-        System.out.println("\n=== 2. TEST JOIN FETCH (TODO 2.6) ===");
-        Department fetchedDept = departmentDAO.findByIdWithEmployees(dept.getId());
+        // 2) Chỉ persist(department) — cascade = ALL tự lo phần Employee
+        departmentDAO.save(it);
+        System.out.println("Da luu Department, id = " + it.getId());
 
-        if (fetchedDept != null) {
-            System.out.println("Phong ban: " + fetchedDept.getName());
-            // EntityManager da dong trong DAO, nhung va truy cap duoc nhan vien nho JOIN FETCH:
-            System.out.println("So luong nhan vien loaded: " + fetchedDept.getEmployees().size());
-            for (Employee e : fetchedDept.getEmployees()) {
-                System.out.println(" - " + e.getFullName() + " (" + e.getEmail() + ")");
+        // 3) Tìm lại kèm employees bằng JOIN FETCH
+        Department found = departmentDAO.findByIdWithEmployees(it.getId());
+        if (found != null) {
+            System.out.println("Phong ban: " + found.getName());
+            for (Employee e : found.getEmployees()) {
+                System.out.println(" - " + e.getFullName() + " | Email: " + e.getEmail());
             }
         }
 
+        // 4) Thử save() thêm 1 Employee trùng email đã tồn tại để kiểm tra Unique Constraint
+        System.out.println("\n=== TEST TRÙNG EMAIL (UNIQUE CONSTRAINT) ===");
+        try {
+            Employee duplicateEmailEmp = new Employee("Nguyen Van Trung", new BigDecimal("20000000"), LocalDate.now(),
+                    "aa.nguyen@company.com", Gender.MALE, true);
+            duplicateEmailEmp.setDepartment(it);
+
+            System.out.println("Thử lưu nhân viên có email đã tồn tại: aa.nguyen@company.com...");
+            employeeDAO.save(duplicateEmailEmp);
+        } catch (Exception e) {
+            System.out.println("-> Bắt được Exception thành công do vi phạm UNIQUE constraint!");
+        }
+
         JPAUtil.close();
-        System.out.println("\n=== CHUONG TRINH HOAN THANH ===");
     }
 }
