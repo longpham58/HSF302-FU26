@@ -15,7 +15,7 @@ public class Main {
         // Gọi helper method
         dept.addEmployee(emp);
 
-        // Kiểm tra đồng bộ 2 chiều
+        // Kiểm tra đồng bộ 2 chiều 
         System.out.println(dept.getEmployees().contains(emp));
         System.out.println(emp.getDepartment() == dept);
     }

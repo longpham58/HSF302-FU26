@@ -1,20 +1,20 @@
 package fu.de180871.dao;
 
-import fu.de180871.pojo.Department;
+import fu.de180871.pojo.Employee;
 import fu.de180871.util.JPAUtil;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 
 import java.util.List;
 
-public class DepartmentDAO {
+public class EmployeeDAO {
 
-    public void save(Department department) {
+    public void save(Employee employee) {
         EntityManager em = JPAUtil.getEMF().createEntityManager();
         EntityTransaction trans = em.getTransaction();
         try {
             trans.begin();
-            em.persist(department);
+            em.persist(employee);
             trans.commit();
         } catch (Exception e) {
             if (trans.isActive()) {
@@ -26,32 +26,32 @@ public class DepartmentDAO {
         }
     }
 
-    public List<Department> findAll() {
+    public List<Employee> findAll() {
         EntityManager em = JPAUtil.getEMF().createEntityManager();
         try {
-            return em.createQuery("SELECT d FROM Department d", Department.class).getResultList();
+            return em.createQuery("SELECT e FROM Employee e", Employee.class).getResultList();
         } finally {
             em.close();
         }
     }
 
-    public Department findById(Long id) {
+    public Employee findById(Long id) {
         EntityManager em = JPAUtil.getEMF().createEntityManager();
         try {
-            return em.find(Department.class, id);
+            return em.find(Employee.class, id);
         } finally {
             em.close();
         }
     }
 
-    public Department update(Department department) {
+    public Employee update(Employee employee) {
         EntityManager em = JPAUtil.getEMF().createEntityManager();
         EntityTransaction trans = em.getTransaction();
-        Department updatedDepartment = null;
+        Employee updatedEmployee = null;
         try {
             trans.begin();
             // Gán lại kết quả trả về từ em.merge()
-            updatedDepartment = em.merge(department);
+            updatedEmployee = em.merge(employee);
             trans.commit();
         } catch (Exception e) {
             if (trans.isActive()) {
@@ -61,7 +61,7 @@ public class DepartmentDAO {
         } finally {
             em.close();
         }
-        return updatedDepartment;
+        return updatedEmployee;
     }
 
     public void delete(Long id) {
@@ -69,9 +69,9 @@ public class DepartmentDAO {
         EntityTransaction trans = em.getTransaction();
         try {
             trans.begin();
-            Department department = em.find(Department.class, id);
-            if (department != null) {
-                em.remove(department);
+            Employee employee = em.find(Employee.class, id);
+            if (employee != null) {
+                em.remove(employee);
             }
             trans.commit();
         } catch (Exception e) {
