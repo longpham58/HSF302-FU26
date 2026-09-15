@@ -31,6 +31,19 @@ public class Department {
         this.location = location;
     }
 
+    public void addEmployee(Employee e) {
+        if (e != null) {
+            this.employees.add(e);
+            e.setDepartment(this);
+        }
+    }
+
+    public void removeEmployee(Employee e) {
+        if (e != null) {
+            this.employees.remove(e);
+            e.setDepartment(null);
+        }
+    }
     // Getters và Setters
     public Long getId() {
         return id;
