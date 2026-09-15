@@ -4,6 +4,7 @@ import fu.de180871.pojo.Department;
 import fu.de180871.util.JPAUtil;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
+import jakarta.persistence.NoResultException;
 
 import java.util.List;
 
@@ -79,6 +80,21 @@ public class DepartmentDAO {
                 trans.rollback();
             }
             e.printStackTrace();
+        } finally {
+            em.close();
+        }
+    }
+    public Department findByIdWithEmployees(Long id) {
+        EntityManager em = JPAUtil.getEMF().createEntityManager();
+        try {
+            return em.createQuery(
+                            "SELECT d FROM Department d JOIN FETCH d.employees WHERE d.id = :id",
+                            Department.class
+                    )
+                    .setParameter("id", id)
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            return null;
         } finally {
             em.close();
         }
