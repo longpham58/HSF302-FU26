@@ -33,8 +33,9 @@ public class Employee {
 
     // Khóa ngoại liên kết tới bảng Department
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "department_id")
+    @JoinColumn(name = "department_id",nullable = false)
     private Department department;
+
 
     // Constructor rỗng (bắt buộc cho JPA)
     public Employee() {
