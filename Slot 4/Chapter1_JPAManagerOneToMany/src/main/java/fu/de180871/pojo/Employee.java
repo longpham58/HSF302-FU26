@@ -48,6 +48,13 @@ public class Employee {
         this.gender = gender;
         this.active = active;
     }
+    @ManyToMany
+    @JoinTable(
+            name = "employee_project",
+            joinColumns = @JoinColumn(name = "employee_id"),
+            inverseJoinColumns = @JoinColumn(name = "project_id")
+    )
+    private Set<Project> projects = new HashSet<>();
 
     // Helper methods cho quan hệ N-N
 
