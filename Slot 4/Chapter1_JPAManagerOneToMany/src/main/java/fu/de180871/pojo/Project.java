@@ -32,15 +32,13 @@ public class Project {
     public Project() {
     }
 
-    public Project(Long id, String projectCode, String name, BigDecimal budget, LocalDate startDate, Set<Employee> employees) {
-        this.id = id;
+    public Project(String projectCode, String name, BigDecimal budget, LocalDate startDate) {
         this.projectCode = projectCode;
         this.name = name;
         this.budget = budget;
         this.startDate = startDate;
-        this.employees = employees;
     }
-    
+
 
     // Getters & Setters
     public Long getId() { return id; }
