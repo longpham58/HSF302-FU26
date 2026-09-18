@@ -32,14 +32,15 @@ public class Project {
     public Project() {
     }
 
-    public Project(String name, BigDecimal budget, LocalDate startDate) {
+    public Project(Long id, String projectCode, String name, BigDecimal budget, LocalDate startDate, Set<Employee> employees) {
+        this.id = id;
+        this.projectCode = projectCode;
         this.name = name;
         this.budget = budget;
         this.startDate = startDate;
+        this.employees = employees;
     }
-
-
-
+    
 
     // Getters & Setters
     public Long getId() { return id; }
@@ -54,6 +55,21 @@ public class Project {
     public LocalDate getStartDate() { return startDate; }
     public void setStartDate(LocalDate startDate) { this.startDate = startDate; }
 
+    public Set<Employee> getEmployees() {
+        return employees;
+    }
+
+    public void setEmployees(Set<Employee> employees) {
+        this.employees = employees;
+    }
+
+    public String getProjectCode() {
+        return projectCode;
+    }
+
+    public void setProjectCode(String projectCode) {
+        this.projectCode = projectCode;
+    }
 
     @Override
     public boolean equals(Object o) {

@@ -57,7 +57,27 @@ public class Employee {
     private Set<Project> projects = new HashSet<>();
 
     // Helper methods cho quan hệ N-N
+    public void assignToProject(Project p) {
+        if (p != null) {
+            this.projects.add(p);
+            p.getEmployees().add(this);
+        }
+    }
 
+    public void removeFromProject(Project p) {
+        if (p != null) {
+            this.projects.remove(p);
+            p.getEmployees().remove(p);
+        }
+    }
+
+    public Set<Project> getProjects() {
+        return projects;
+    }
+
+    public void setProjects(Set<Project> projects) {
+        this.projects = projects;
+    }
 
     // Getters & Setters
     public Long getId() { return id; }
