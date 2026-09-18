@@ -3,14 +3,16 @@ package fu.de180871.dao;
 import fu.de180871.pojo.Employee;
 import fu.de180871.util.JPAUtil;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.EntityTransaction;
 
 import java.util.List;
 
 public class EmployeeDAO {
+    private final EntityManagerFactory emf = JPAUtil.getEMF();
 
     public void save(Employee employee) {
-        EntityManager em = JPAUtil.getEMF().createEntityManager();
+        EntityManager em = emf.createEntityManager();
         EntityTransaction trans = em.getTransaction();
         try {
             trans.begin();
@@ -27,7 +29,7 @@ public class EmployeeDAO {
     }
 
     public List<Employee> findAll() {
-        EntityManager em = JPAUtil.getEMF().createEntityManager();
+        EntityManager em = emf.createEntityManager();
         try {
             return em.createQuery("SELECT e FROM Employee e", Employee.class).getResultList();
         } finally {
@@ -36,7 +38,7 @@ public class EmployeeDAO {
     }
 
     public Employee findById(Long id) {
-        EntityManager em = JPAUtil.getEMF().createEntityManager();
+        EntityManager em = emf.createEntityManager();
         try {
             return em.find(Employee.class, id);
         } finally {
@@ -45,7 +47,7 @@ public class EmployeeDAO {
     }
 
     public Employee update(Employee employee) {
-        EntityManager em = JPAUtil.getEMF().createEntityManager();
+        EntityManager em = emf.createEntityManager();
         EntityTransaction trans = em.getTransaction();
         Employee updatedEmployee = null;
         try {
@@ -65,7 +67,7 @@ public class EmployeeDAO {
     }
 
     public void delete(Long id) {
-        EntityManager em = JPAUtil.getEMF().createEntityManager();
+        EntityManager em = emf.createEntityManager();
         EntityTransaction trans = em.getTransaction();
         try {
             trans.begin();

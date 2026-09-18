@@ -3,15 +3,16 @@ package fu.de180871.dao;
 import fu.de180871.pojo.Department;
 import fu.de180871.util.JPAUtil;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.NoResultException;
 
 import java.util.List;
 
 public class DepartmentDAO {
-
+    private final EntityManagerFactory emf = JPAUtil.getEMF();
     public void save(Department department) {
-        EntityManager em = JPAUtil.getEMF().createEntityManager();
+        EntityManager em = emf.createEntityManager();
         EntityTransaction trans = em.getTransaction();
         try {
             trans.begin();
@@ -28,7 +29,7 @@ public class DepartmentDAO {
     }
 
     public List<Department> findAll() {
-        EntityManager em = JPAUtil.getEMF().createEntityManager();
+        EntityManager em = emf.createEntityManager();
         try {
             return em.createQuery("SELECT d FROM Department d", Department.class).getResultList();
         } finally {
@@ -37,7 +38,7 @@ public class DepartmentDAO {
     }
 
     public Department findById(Long id) {
-        EntityManager em = JPAUtil.getEMF().createEntityManager();
+        EntityManager em = emf.createEntityManager();
         try {
             return em.find(Department.class, id);
         } finally {
@@ -46,7 +47,7 @@ public class DepartmentDAO {
     }
 
     public Department update(Department department) {
-        EntityManager em = JPAUtil.getEMF().createEntityManager();
+        EntityManager em = emf.createEntityManager();
         EntityTransaction trans = em.getTransaction();
         Department updatedDepartment = null;
         try {
@@ -66,7 +67,7 @@ public class DepartmentDAO {
     }
 
     public void delete(Long id) {
-        EntityManager em = JPAUtil.getEMF().createEntityManager();
+        EntityManager em = emf.createEntityManager();
         EntityTransaction trans = em.getTransaction();
         try {
             trans.begin();
@@ -85,7 +86,7 @@ public class DepartmentDAO {
         }
     }
     public Department findByIdWithEmployees(Long id) {
-        EntityManager em = JPAUtil.getEMF().createEntityManager();
+        EntityManager em = emf.createEntityManager();
         try {
             return em.createQuery(
                             "SELECT d FROM Department d JOIN FETCH d.employees WHERE d.id = :id",
