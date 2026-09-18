@@ -28,5 +28,38 @@ public class Main {
         // Tạo 2 Project
         Project p1 = new Project("PRJ_01", "Hệ thống Quản lý Đào tạo", new BigDecimal("500000000"), LocalDate.of(2026, 1, 1));
         Project p2 = new Project("PRJ_02", "Website Tin tức Tổng hợp", new BigDecimal("200000000"), LocalDate.of(2026, 4, 1));
+
+        System.out.println("\n=== 2. PHÂN CÔNG DỰ ÁN CHÉO QUA HELPER METHOD ===");
+
+        e1.assignToProject(p1);
+        e1.assignToProject(p2);
+
+
+        e2.assignToProject(p2);
+
+        e3.assignToProject(p1);
+
+        System.out.println("\n=== 3. LƯU VÀO CSDL (CASCADE TỰ ĐỘNG LƯU PROJECT) ===");
+        employeeDAO.save(e1);
+        employeeDAO.save(e2);
+        employeeDAO.save(e3);
+
+        System.out.println("\n=== 4. IN DANH SÁCH PROJECT CỦA TỪNG NHÂN VIÊN ===");
+        List<Employee> employees = employeeDAO.findAll();
+        for (Employee emp : employees) {
+            System.out.println("\n" + emp);
+            System.out.println("  -> Các dự án tham gia:");
+            if (emp.getProjects().isEmpty()) {
+                System.out.println("     (Chưa tham gia dự án nào)");
+            } else {
+                for (Project prj : emp.getProjects()) {
+                    System.out.println("     + " + prj);
+                }
+            }
+        }
+
+        JPAUtil.close();
+    }
+}
     }
 }
