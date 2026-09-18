@@ -17,8 +17,8 @@
             <property name="jakarta.persistence.jdbc.password" value="sa"/>
 
             <property name="hibernate.dialect" value="org.hibernate.dialect.SQLServerDialect"/>
-            <property name="hibernate.show_sql" value="true"/>
-            <property name="hibernate.format_sql" value="true"/>
+            <property name="hibernate.show_sql" value="false"/>
+            <property name="hibernate.format_sql" value="false"/>
 
             <!-- Dòng kích hoạt tự động tạo bảng -->
             <property name="hibernate.hbm2ddl.auto" value="update"/>

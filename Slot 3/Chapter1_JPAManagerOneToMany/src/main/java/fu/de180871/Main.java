@@ -6,6 +6,7 @@ import fu.de180871.pojo.Department;
 import fu.de180871.pojo.Employee;
 import fu.de180871.pojo.Gender;
 import fu.de180871.util.JPAUtil;
+import org.hibernate.LazyInitializationException;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -17,76 +18,96 @@ public class Main {
         DepartmentDAO departmentDAO = new DepartmentDAO();
         EmployeeDAO employeeDAO = new EmployeeDAO();
 
-        // =========================================================================
-        // CHECKLIST 1 & 2: Mối quan hệ FK, Đồng bộ 2 chiều via addEmployee() & Cascade Save
-        // =========================================================================
-        System.out.println("=== 1. TEST ĐỒNG BỘ 2 CHIỀU VÀ CASCADE SAVE ===");
-        Department deptIT = new Department("Software Engineering", "Da Nang");
+        // 1. TỰ ĐỘNG ĐIỀN DỮ LIỆU MẪU (DATA SEEDING)
+        seedData(departmentDAO);
 
-        Employee e1 = new Employee("Nguyen Van A", new BigDecimal("15000000"), LocalDate.of(2022, 1, 10),
-                "a.nguyen@company.com", Gender.MALE, true);
-        Employee e2 = new Employee("Tran Thi B", new BigDecimal("18000000"), LocalDate.of(2021, 6, 1),
-                "b.tran@company.com", Gender.FEMALE, true);
-
-        // Helper method addEmployee giup dong bo 2 chieu
-        deptIT.addEmployee(e1);
-        deptIT.addEmployee(e2);
-
-        // Kiem tra dong bo ngay trên RAM:
-        System.out.println("Kiem tra e1.getDepartment(): " + e1.getDepartment().getName());
-        System.out.println("Kiem tra deptIT.getEmployees().size(): " + deptIT.getEmployees().size());
-
-        // Save Department (Tu dong luu 2 Employees nho CascadeType.ALL)
-        departmentDAO.save(deptIT);
-        System.out.println("-> Da luu Department ID: " + deptIT.getId());
-
-        // =========================================================================
-        // CHECKLIST 5 & TODO 2.6: Load JOIN FETCH (Khong bi LazyInitializationException)
-        // =========================================================================
-        System.out.println("\n=== 2. TEST JOIN FETCH (KHÔNG BỊ LAZY EXCEPTION DÙ EM ĐÃ ĐÓNG) ===");
-        Department fetchedDept = departmentDAO.findByIdWithEmployees(deptIT.getId());
-        System.out.println("Phong ban: " + fetchedDept.getName());
-        System.out.println("So nhan vien (load bang JOIN FETCH): " + fetchedDept.getEmployees().size());
-
-        // =========================================================================
-        // TODO 2.8: TÁI HIỆN N+1 QUERY PROBLEM (1 + N SQL)
-        // =========================================================================
-        System.out.println("\n=== 3. TODO 2.8: TÁI HIỆN N+1 QUERY PROBLEM ===");
-        List<Department> listNPlus1 = departmentDAO.findAll(); // 1 cau SELECT departments
-        for (Department d : listNPlus1) {
-            // Moi lan goi .getEmployees() phat ra 1 cau SELECT employees tuong ung
-            System.out.println(">> Dept: " + d.getName() + " | So NV: " + d.getEmployees().size());
+        // 2. TEST JOIN FETCH (TODO 2.6)
+        System.out.println("\n=== TEST JOIN FETCH ===");
+        Department fetchedDept = departmentDAO.findByIdWithEmployees(1L);
+        if (fetchedDept != null) {
+            System.out.println(fetchedDept);
+            System.out.println("Danh sách nhân viên (Loaded bằng JOIN FETCH):");
+            for (Employee e : fetchedDept.getEmployees()) {
+                System.out.println(" - " + e);
+            }
         }
 
-        // =========================================================================
-        // CHECKLIST 4 & TODO 2.9: FIX N+1 BẰNG JOIN FETCH (Chỉ 1 câu SQL)
-        // =========================================================================
-        System.out.println("\n=== 4. TODO 2.9: FIX N+1 BẰNG JOIN FETCH ===");
-        List<Department> listFixed = departmentDAO.findAllWithEmployees(); // Chi 1 cau SELECT JOIN FETCH
+        // 3. MINH HỌA LAZY INITIALIZATION EXCEPTION (TODO 2.8)
+        System.out.println("\n===  TÁI HIỆN BẮT BẢO VỆ LAZY INITIALIZATION EXCEPTION ===");
+        List<Department> listNPlus1 = departmentDAO.findAll();
+        for (Department d : listNPlus1) {
+            System.out.println(">> " + d);
+            try {
+                // Sẽ ném Exception do EntityManager đã đóng trong DAO
+                System.out.println("   Số lượng nhân viên: " + d.getEmployees().size());
+            } catch (LazyInitializationException e) {
+                System.out.println("   [BẮT LỖI] Không thể lấy danh sách nhân viên do LazyInitializationException (Session đã bị đóng)!");
+            }
+        }
+
+        // 4. FIX N+1/LAZY BẰNG JOIN FETCH (TODO 2.9)
+        System.out.println("\n===  FIX N+1 BẰNG JOIN FETCH (LẤY ĐẦY ĐỦ DỮ LIỆU) ===");
+        List<Department> listFixed = departmentDAO.findAllWithEmployees();
         for (Department d : listFixed) {
-            System.out.println(">> Dept: " + d.getName() + " | So NV: " + d.getEmployees().size());
+            System.out.println(">> " + d);
+            System.out.println("   Số lượng nhân viên: " + d.getEmployees().size());
+            for (Employee e : d.getEmployees()) {
+                System.out.println("     + " + e);
+            }
         }
 
         System.out.println("\n==================================================");
-        System.out.println(" [BÁO CÁO DO SỐ CÂU SQL (CHECKLIST 4)]");
-        System.out.println(" - TODO 2.8 (Chua fix N+1): 1 + N cau SQL");
-        System.out.println(" - TODO 2.9 (Da fix N+1):   1 cau SQL duy nhat (JOIN FETCH)");
+        System.out.println(" [BÁO CÁO KẾT QUẢ]");
+        System.out.println(" -  Lazy Exception do FetchType.LAZY + EntityManager đóng");
+        System.out.println(" -  Đã giải quyết bằng JOIN FETCH trong JPQL");
         System.out.println("==================================================");
 
-        // =========================================================================
-        // CHECKLIST 3: Xóa Department -> Employee bị xóa theo (Cascade + OrphanRemoval)
-        // =========================================================================
-        System.out.println("\n=== 5. TEST XÓA DEPARTMENT (CASCADE DELETE) ===");
-        System.out.println("Tong so nhan vien truoc khi xoa: " + employeeDAO.findAll().size());
+        // 5. TEST XÓA DEPARTMENT (CASCADE DELETE)
+        System.out.println("\n=== TEST XÓA DEPARTMENT (CASCADE DELETE) ===");
+        System.out.println("Tổng số nhân viên trước khi xóa: " + employeeDAO.findAll().size());
 
-        // Xoa Department
-        departmentDAO.delete(deptIT.getId());
-        System.out.println("-> Da xoa Department ID: " + deptIT.getId());
+        departmentDAO.delete(2L);
+        System.out.println("-> Đã xóa Phòng ban có ID: 2 (Marketing)");
 
-        // Kiem tra lai danh sach Employee duoi DB
-        System.out.println("Tong so nhan vien sau khi xoa Department: " + employeeDAO.findAll().size());
+        System.out.println("Tổng số nhân viên còn lại sau khi xóa Phòng ban: " + employeeDAO.findAll().size());
 
         JPAUtil.close();
-        System.out.println("\n=== TẤT CẢ CHECKLIST ĐÃ HOÀN THÀNH XUẤT SẮC ===");
+        System.out.println("\n=== CHƯƠNG TRÌNH HOÀN THÀNH ===");
+    }
+
+    private static void seedData(DepartmentDAO departmentDAO) {
+        if (!departmentDAO.findAll().isEmpty()) {
+            System.out.println("Dữ liệu đã có sẵn trong cơ sở dữ liệu, bỏ qua bước nhập dữ liệu mẫu.");
+            return;
+        }
+
+        System.out.println("=== BẮT ĐẦU TỰ ĐỘNG ĐIỀN DỮ LIỆU MẪU (DATA SEEDING) ===");
+
+        // Phòng 1: Software Engineering
+        Department dev = new Department("Software Engineering", "Đà Nẵng");
+        Employee e1 = new Employee("Nguyễn Văn A", new BigDecimal("15000000"), LocalDate.of(2022, 1, 10),
+                "a.nguyen@company.com", Gender.MALE, true);
+        Employee e2 = new Employee("Trần Thị B", new BigDecimal("18000000"), LocalDate.of(2021, 6, 1),
+                "b.tran@company.com", Gender.FEMALE, true);
+        dev.addEmployee(e1);
+        dev.addEmployee(e2);
+
+        // Phòng 2: Marketing
+        Department mkt = new Department("Marketing", "Hà Nội");
+        Employee e3 = new Employee("Lê Văn C", new BigDecimal("12000000"), LocalDate.of(2023, 3, 15),
+                "c.le@company.com", Gender.OTHER, true);
+        mkt.addEmployee(e3);
+
+        // Phòng 3: Human Resources
+        Department hr = new Department("Human Resources", "Hồ Chí Minh");
+        Employee e4 = new Employee("Phạm Minh D", new BigDecimal("20000000"), LocalDate.of(2020, 9, 20),
+                "d.pham@company.com", Gender.MALE, true);
+        hr.addEmployee(e4);
+
+        departmentDAO.save(dev);
+        departmentDAO.save(mkt);
+        departmentDAO.save(hr);
+
+        System.out.println("-> Đã thêm 3 Phòng ban và 4 Nhân viên thành công!\n");
     }
 }
