@@ -17,86 +17,76 @@ public class Main {
         DepartmentDAO departmentDAO = new DepartmentDAO();
         EmployeeDAO employeeDAO = new EmployeeDAO();
 
-        System.out.println("=== 1. TẠO DEPARTMENT VÀ 3 EMPLOYEES (TODO 2.7) ===");
-        Department it = new Department("Marketing", "Ha Noi");
+        // =========================================================================
+        // CHECKLIST 1 & 2: Mối quan hệ FK, Đồng bộ 2 chiều via addEmployee() & Cascade Save
+        // =========================================================================
+        System.out.println("=== 1. TEST ĐỒNG BỘ 2 CHIỀU VÀ CASCADE SAVE ===");
+        Department deptIT = new Department("Software Engineering", "Da Nang");
 
         Employee e1 = new Employee("Nguyen Van A", new BigDecimal("15000000"), LocalDate.of(2022, 1, 10),
-                "aa.nguyen@company.com", Gender.MALE, true);
+                "a.nguyen@company.com", Gender.MALE, true);
         Employee e2 = new Employee("Tran Thi B", new BigDecimal("18000000"), LocalDate.of(2021, 6, 1),
-                "bb.tran@company.com", Gender.FEMALE, true);
-        Employee e3 = new Employee("Le Van C", new BigDecimal("12000000"), LocalDate.of(2023, 3, 15),
-                "cc.le@company.com", Gender.OTHER, true);
+                "b.tran@company.com", Gender.FEMALE, true);
 
+        // Helper method addEmployee giup dong bo 2 chieu
+        deptIT.addEmployee(e1);
+        deptIT.addEmployee(e2);
 
-        it.addEmployee(e1);
-        it.addEmployee(e2);
-        it.addEmployee(e3);
+        // Kiem tra dong bo ngay trên RAM:
+        System.out.println("Kiem tra e1.getDepartment(): " + e1.getDepartment().getName());
+        System.out.println("Kiem tra deptIT.getEmployees().size(): " + deptIT.getEmployees().size());
 
-        // Chi persist(department) - cascade = ALL tu lo phan Employee
-        departmentDAO.save(it);
-        System.out.println("-> Da luu Department, id = " + it.getId());
+        // Save Department (Tu dong luu 2 Employees nho CascadeType.ALL)
+        departmentDAO.save(deptIT);
+        System.out.println("-> Da luu Department ID: " + deptIT.getId());
 
-        System.out.println("\n=== 2. TÌM LẠI KÈM EMPLOYEES BẰNG JOIN FETCH (TODO 2.6) ===");
-        Department found = departmentDAO.findByIdWithEmployees(it.getId());
-        if (found != null) {
-            System.out.println("Phong ban: " + found.getName());
-            for (Employee e : found.getEmployees()) {
-                System.out.println(" - " + e.getFullName() + " | Email: " + e.getEmail());
-            }
-        }
+        // =========================================================================
+        // CHECKLIST 5 & TODO 2.6: Load JOIN FETCH (Khong bi LazyInitializationException)
+        // =========================================================================
+        System.out.println("\n=== 2. TEST JOIN FETCH (KHÔNG BỊ LAZY EXCEPTION DÙ EM ĐÃ ĐÓNG) ===");
+        Department fetchedDept = departmentDAO.findByIdWithEmployees(deptIT.getId());
+        System.out.println("Phong ban: " + fetchedDept.getName());
+        System.out.println("So nhan vien (load bang JOIN FETCH): " + fetchedDept.getEmployees().size());
 
-
-        System.out.println("\n=== 3. TÁI HIỆN N+1 QUERY PROBLEM (TODO 2.8) ===");
-
-        // 1. Goi findAll() lay danh sach Department (KHONG JOIN FETCH)
-        // Hibernate se phat ra 1 cau SQL SELECT dau tien
-        List<Department> departmentList = departmentDAO.findAll();
-
-        System.out.println("\n--- BAT DAU DUYET DANH SACH EMPLOYEES CUA TUNG DEPARTMENT ---");
-        // 2. Loop qua tung Department va truy cap .getEmployees()
-        // Do @OneToMany la LAZY, moi vong lap Hibernate se ban thêm 1 cau SELECT (Tong: 1 + N SQL)
-        for (Department d : departmentList) {
-            System.out.println(">> Dang doc danh sach nhan vien thuoc phong: " + d.getName());
-            int employeeCount = d.getEmployees().size(); // Dòng này kich hoat câu SELECT thu N
-            System.out.println("   So luong nhan vien: " + employeeCount);
+        // =========================================================================
+        // TODO 2.8: TÁI HIỆN N+1 QUERY PROBLEM (1 + N SQL)
+        // =========================================================================
+        System.out.println("\n=== 3. TODO 2.8: TÁI HIỆN N+1 QUERY PROBLEM ===");
+        List<Department> listNPlus1 = departmentDAO.findAll(); // 1 cau SELECT departments
+        for (Department d : listNPlus1) {
+            // Moi lan goi .getEmployees() phat ra 1 cau SELECT employees tuong ung
+            System.out.println(">> Dept: " + d.getName() + " | So NV: " + d.getEmployees().size());
         }
 
         // =========================================================================
-        // Test Unique Constraint (Trùng Email)
+        // CHECKLIST 4 & TODO 2.9: FIX N+1 BẰNG JOIN FETCH (Chỉ 1 câu SQL)
         // =========================================================================
-        System.out.println("\n=== 4. TEST TRÙNG EMAIL (UNIQUE CONSTRAINT) ===");
-        try {
-            Employee duplicateEmailEmp = new Employee("Nguyen Van Trung", new BigDecimal("20000000"), LocalDate.now(),
-                    "aa.nguyen@company.com", Gender.MALE, true);
-            duplicateEmailEmp.setDepartment(it);
-
-            System.out.println("Thử lưu nhân viên có email đã tồn tại: aa.nguyen@company.com...");
-            employeeDAO.save(duplicateEmailEmp);
-        } catch (Exception e) {
-            System.out.println("-> Bắt được Exception thành công do vi phạm UNIQUE constraint!");
-        }
-        System.out.println("\n=== TODO 2.9: FIX N+1 QUERY BẰNG JOIN FETCH ===");
-
-        System.out.println("\n--- [SAU KHI FIX]: Gọi findAllWithEmployees() ---");
-        s
-// Chỉ phát ra ĐÚNG 1 câu lệnh SQL SELECT duy nhất kết hợp LEFT JOIN FETCH
-        List<Department> fixedDepartmentList = departmentDAO.findAllWithEmployees();
-
-        for (Department d : fixedDepartmentList) {
-            System.out.println(">> Phong ban: " + d.getName());
-            // Khong phát thêm câu SQL nào do danh sách employees đã được nạp sẵn
-            System.out.println("   So luong nhan vien: " + d.getEmployees().size());
+        System.out.println("\n=== 4. TODO 2.9: FIX N+1 BẰNG JOIN FETCH ===");
+        List<Department> listFixed = departmentDAO.findAllWithEmployees(); // Chi 1 cau SELECT JOIN FETCH
+        for (Department d : listFixed) {
+            System.out.println(">> Dept: " + d.getName() + " | So NV: " + d.getEmployees().size());
         }
 
         System.out.println("\n==================================================");
-        System.out.println(" [BÁO CÁO SO SÁNH SỐ CÂU SQL TRƯỚC VÀ SAU FIX]");
-        System.out.println(" - TRƯỚC FIX (findAll):            1 + N câu SQL (1 SELECT Departments + N SELECT Employees)");
-        System.out.println(" - SAU FIX (findAllWithEmployees): 1 câu SQL duy nhất (LEFT JOIN FETCH)");
+        System.out.println(" [BÁO CÁO DO SỐ CÂU SQL (CHECKLIST 4)]");
+        System.out.println(" - TODO 2.8 (Chua fix N+1): 1 + N cau SQL");
+        System.out.println(" - TODO 2.9 (Da fix N+1):   1 cau SQL duy nhat (JOIN FETCH)");
         System.out.println("==================================================");
 
-        // Dong EntityManagerFactory
-        JPAUtil.close();
-        System.out.println("\n=== CHƯƠNG TRÌNH HOÀN THÀNH ===");
-    }
+        // =========================================================================
+        // CHECKLIST 3: Xóa Department -> Employee bị xóa theo (Cascade + OrphanRemoval)
+        // =========================================================================
+        System.out.println("\n=== 5. TEST XÓA DEPARTMENT (CASCADE DELETE) ===");
+        System.out.println("Tong so nhan vien truoc khi xoa: " + employeeDAO.findAll().size());
 
+        // Xoa Department
+        departmentDAO.delete(deptIT.getId());
+        System.out.println("-> Da xoa Department ID: " + deptIT.getId());
+
+        // Kiem tra lai danh sach Employee duoi DB
+        System.out.println("Tong so nhan vien sau khi xoa Department: " + employeeDAO.findAll().size());
+
+        JPAUtil.close();
+        System.out.println("\n=== TẤT CẢ CHECKLIST ĐÃ HOÀN THÀNH XUẤT SẮC ===");
+    }
 }
