@@ -33,6 +33,8 @@ public class Project {
         this.budget = budget;
         this.startDate = startDate;
     }
+    @ManyToMany(mappedBy = "projects")
+    private Set<Employee> employees = new HashSet<>();
 
 
 
