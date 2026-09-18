@@ -15,6 +15,9 @@ public class Project {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "project_code", nullable = false, unique = true, length = 50)
+    private String projectCode;
+
     @Column(nullable = false, length = 150)
     private String name;
 
@@ -23,7 +26,8 @@ public class Project {
     @Column(name = "start_date")
     private LocalDate startDate;
 
-
+    @ManyToMany(mappedBy = "projects")
+    private Set<Employee> employees = new HashSet<>();
 
     public Project() {
     }
@@ -33,8 +37,7 @@ public class Project {
         this.budget = budget;
         this.startDate = startDate;
     }
-    @ManyToMany(mappedBy = "projects")
-    private Set<Employee> employees = new HashSet<>();
+
 
 
 
@@ -52,21 +55,16 @@ public class Project {
     public void setStartDate(LocalDate startDate) { this.startDate = startDate; }
 
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Project project = (Project) o;
-        return Objects.equals(id, project.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
-    }
+    
 
     @Override
     public String toString() {
-        return "Dự án [Mã: " + id + " | Tên dự án: " + name + " | Ngân sách: " + budget + " VNĐ | Ngày bắt đầu: " + startDate + "]";
+        return "Project{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", budget=" + budget +
+                ", startDate=" + startDate +
+                ", employees=" + employees +
+                '}';
     }
 }
