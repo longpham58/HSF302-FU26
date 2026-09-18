@@ -55,7 +55,18 @@ public class Project {
     public void setStartDate(LocalDate startDate) { this.startDate = startDate; }
 
 
-    
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Project project = (Project) o;
+        return Objects.equals(projectCode, project.projectCode);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(projectCode);
+    }
 
     @Override
     public String toString() {
