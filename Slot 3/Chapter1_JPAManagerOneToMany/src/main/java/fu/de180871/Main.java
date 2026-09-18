@@ -75,9 +75,28 @@ public class Main {
         } catch (Exception e) {
             System.out.println("-> Bắt được Exception thành công do vi phạm UNIQUE constraint!");
         }
+        System.out.println("\n=== TODO 2.9: FIX N+1 QUERY BẰNG JOIN FETCH ===");
+
+        System.out.println("\n--- [SAU KHI FIX]: Gọi findAllWithEmployees() ---");
+        s
+// Chỉ phát ra ĐÚNG 1 câu lệnh SQL SELECT duy nhất kết hợp LEFT JOIN FETCH
+        List<Department> fixedDepartmentList = departmentDAO.findAllWithEmployees();
+
+        for (Department d : fixedDepartmentList) {
+            System.out.println(">> Phong ban: " + d.getName());
+            // Khong phát thêm câu SQL nào do danh sách employees đã được nạp sẵn
+            System.out.println("   So luong nhan vien: " + d.getEmployees().size());
+        }
+
+        System.out.println("\n==================================================");
+        System.out.println(" [BÁO CÁO SO SÁNH SỐ CÂU SQL TRƯỚC VÀ SAU FIX]");
+        System.out.println(" - TRƯỚC FIX (findAll):            1 + N câu SQL (1 SELECT Departments + N SELECT Employees)");
+        System.out.println(" - SAU FIX (findAllWithEmployees): 1 câu SQL duy nhất (LEFT JOIN FETCH)");
+        System.out.println("==================================================");
 
         // Dong EntityManagerFactory
         JPAUtil.close();
         System.out.println("\n=== CHƯƠNG TRÌNH HOÀN THÀNH ===");
     }
+
 }

@@ -100,4 +100,16 @@ public class DepartmentDAO {
             em.close();
         }
     }
+    public List<Department> findAllWithEmployees() {
+        EntityManager em = JPAUtil.getEMF().createEntityManager();
+        try {
+            // Sử dụng DISTINCT để tránh trùng lặp dữ liệu Department khi JOIN với Employees
+            return em.createQuery(
+                    "SELECT DISTINCT d FROM Department d LEFT JOIN FETCH d.employees",
+                    Department.class
+            ).getResultList();
+        } finally {
+            em.close();
+        }
+    }
 }
