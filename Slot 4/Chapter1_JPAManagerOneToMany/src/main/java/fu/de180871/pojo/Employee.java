@@ -36,13 +36,6 @@ public class Employee {
     @JoinColumn(name = "department_id")
     private Department department;
 
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinTable(
-            name = "employee_projects",
-            joinColumns = @JoinColumn(name = "employee_id"),
-            inverseJoinColumns = @JoinColumn(name = "project_id")
-    )
-    private Set<Project> projects = new HashSet<>();
 
     public Employee() {
     }
@@ -57,19 +50,7 @@ public class Employee {
     }
 
     // Helper methods cho quan hệ N-N
-    public void addProject(Project project) {
-        if (project != null) {
-            this.projects.add(project);
-            project.getEmployees().add(this);
-        }
-    }
 
-    public void removeProject(Project project) {
-        if (project != null) {
-            this.projects.remove(project);
-            project.getEmployees().remove(this);
-        }
-    }
 
     // Getters & Setters
     public Long getId() { return id; }
@@ -96,8 +77,6 @@ public class Employee {
     public Department getDepartment() { return department; }
     public void setDepartment(Department department) { this.department = department; }
 
-    public Set<Project> getProjects() { return projects; }
-    public void setProjects(Set<Project> projects) { this.projects = projects; }
 
     @Override
     public boolean equals(Object o) {
@@ -123,7 +102,6 @@ public class Employee {
                 ", gender=" + gender +
                 ", active=" + active +
                 ", department=" + department +
-                ", projects=" + projects +
                 '}';
     }
 }

@@ -23,8 +23,7 @@ public class Project {
     @Column(name = "start_date")
     private LocalDate startDate;
 
-    @ManyToMany(mappedBy = "projects")
-    private Set<Employee> employees = new HashSet<>();
+
 
     public Project() {
     }
@@ -35,20 +34,7 @@ public class Project {
         this.startDate = startDate;
     }
 
-    // Helper methods cho quan hệ N-N
-    public void addEmployee(Employee employee) {
-        if (employee != null) {
-            this.employees.add(employee);
-            employee.getProjects().add(this);
-        }
-    }
 
-    public void removeEmployee(Employee employee) {
-        if (employee != null) {
-            this.employees.remove(employee);
-            employee.getProjects().remove(this);
-        }
-    }
 
     // Getters & Setters
     public Long getId() { return id; }
@@ -63,8 +49,6 @@ public class Project {
     public LocalDate getStartDate() { return startDate; }
     public void setStartDate(LocalDate startDate) { this.startDate = startDate; }
 
-    public Set<Employee> getEmployees() { return employees; }
-    public void setEmployees(Set<Employee> employees) { this.employees = employees; }
 
     @Override
     public boolean equals(Object o) {
