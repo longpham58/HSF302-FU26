@@ -61,5 +61,3 @@ public class Main {
         JPAUtil.close();
     }
 }
-    }
-}
