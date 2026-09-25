@@ -33,6 +33,18 @@ public class Student {
     @JoinColumn(name = "department_id", nullable = false)
     private Department department;
 
+    public Student(Long id, String studentCode, String fullName, String email, Gender gender, LocalDate dob, Double gpa, boolean active, Department department) {
+        this.id = id;
+        this.studentCode = studentCode;
+        this.fullName = fullName;
+        this.email = email;
+        this.gender = gender;
+        this.dob = dob;
+        this.gpa = gpa;
+        this.active = active;
+        this.department = department;
+    }
+
     @Override
     public String toString() {
         return "Student{" +
