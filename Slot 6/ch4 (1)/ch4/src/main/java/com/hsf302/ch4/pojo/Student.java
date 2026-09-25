@@ -33,7 +33,7 @@ public class Student {
     @JoinColumn(name = "department_id", nullable = false)
     private Department department;
 
-    public Student(Long id, String studentCode, String fullName, String email, Gender gender, LocalDate dob, Double gpa, boolean active, Department department) {
+    public Student() {
         this.id = id;
         this.studentCode = studentCode;
         this.fullName = fullName;
