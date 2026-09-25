@@ -33,7 +33,7 @@ public class Department {
         this.code = code;
         this.name = name;
     }
-    
+
     public void addStudent(Student s) {
         students.add(s);
         s.setDepartment(this);

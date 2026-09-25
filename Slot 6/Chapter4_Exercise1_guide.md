@@ -251,8 +251,8 @@ public class Department {
 
 ```bash
 git add .
-git commit -m "feat(entity): add Gender enum and Department entity" \
-           -m "Department là inverse side với @OneToMany(mappedBy = "department")" \
+git commit -m "feat(entity): add Gender enum and Department entity"
+           -m "Department là inverse side với @OneToMany(mappedBy = "department")"
            -m "Refs: TODO 2"
 ```
 
