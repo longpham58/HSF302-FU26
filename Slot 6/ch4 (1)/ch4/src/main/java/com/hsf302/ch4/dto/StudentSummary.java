@@ -1,4 +1,8 @@
 package com.hsf302.ch4.dto;
 
-public class StudentSummary {
+public interface StudentSummary {
+    String getStudentCode();
+    String getFullName();
+    Double getGpa();
+    String getDepartmentName();
 }

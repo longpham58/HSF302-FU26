@@ -8,6 +8,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.hibernate.LazyInitializationException;
 import com.hsf302.ch4.pojo.Department;
+import com.hsf302.ch4.dto.StudentSummary;
 
 import java.util.Collection;
 import java.util.List;
@@ -156,7 +157,11 @@ public class ExerciseRunner implements CommandLineRunner {
     }
 
     private void todo18() {
-        title("TODO 18");
+        title("TODO 18: Interface projection");
+        List<StudentSummary> list = studentService.getActiveSummaries();
+        list.forEach(p -> System.out.printf("   %s | %-15s | %.1f | %s%n",
+                p.getStudentCode(), p.getFullName(), p.getGpa(), p.getDepartmentName()));
+        System.out.println("   -> " + list.size() + " record(s)");
     }
 
     private void todo19() {
