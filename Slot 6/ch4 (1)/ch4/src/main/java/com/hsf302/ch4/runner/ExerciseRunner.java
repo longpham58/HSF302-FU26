@@ -128,7 +128,8 @@ public class ExerciseRunner implements CommandLineRunner {
     }
 
     private void todo15() {
-        title("TODO 15");
+        title("TODO 15: Subquery - GPA above average");
+        printList("GPA > AVG", studentService.findAboveAverageGpa());
     }
 
     private void todo16() {
