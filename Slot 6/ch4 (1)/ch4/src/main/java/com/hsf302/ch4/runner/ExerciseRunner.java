@@ -151,7 +151,8 @@ public class ExerciseRunner implements CommandLineRunner {
     }
 
     private void todo17() {
-        title("TODO 17");
+        title("TODO 17: Native query - TOP N");
+        printList("Top 2 GPA of SE", studentService.findTopNInDepartment("SE", 2));
     }
 
     private void todo18() {
