@@ -47,4 +47,6 @@ public interface StudentService {
     @Transactional
     int deactivateLowGpa(double threshold);
 
+    long deleteInactiveStudents();
+
 }
