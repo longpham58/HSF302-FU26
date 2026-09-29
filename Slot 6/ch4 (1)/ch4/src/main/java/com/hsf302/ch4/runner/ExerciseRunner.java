@@ -117,7 +117,9 @@ public class ExerciseRunner implements CommandLineRunner {
     }
 
     private void todo13() {
-        title("TODO 13");
+        title("TODO 13: JPQL LIKE");
+        printList("keyword 'hoa'", studentService.searchByKeyword("hoa"));
+        printList("keyword 'gmail'", studentService.searchByKeyword("gmail"));
     }
 
     private void todo14() {
