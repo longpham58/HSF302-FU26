@@ -31,4 +31,10 @@ public class DepartmentServiceImpl implements DepartmentService {
     public java.util.List<com.hsf302.ch4.pojo.Department> findDepartmentsWithoutStudents() {
         return departmentRepository.findByStudentsIsEmpty();
     }
+
+    // TODO 14
+    @Override
+    public java.util.List<com.hsf302.ch4.dto.DepartmentStatDTO> getStatistics() {
+        return departmentRepository.getDepartmentStats();
+    }
 }
