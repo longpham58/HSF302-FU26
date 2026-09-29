@@ -2,6 +2,7 @@ package com.hsf302.ch4.pojo;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
@@ -10,6 +11,7 @@ import java.time.LocalDate;
 @Table(name = "students")
 @Getter
 @Setter
+@NoArgsConstructor
 public class Student {
 
     @Id
@@ -18,45 +20,32 @@ public class Student {
 
     @Column(name = "student_code", nullable = false, unique = true, length = 10)
     private String studentCode;
+
     @Column(name = "full_name", nullable = false, length = 100)
     private String fullName;
-    @Column(name = "email", length = 100)
-    private String email;
+
+    @Column(unique = true, length = 100)
+    private String email;                         // cho phép null
 
     @Enumerated(EnumType.STRING)
     @Column(length = 10)
     private Gender gender;
+
     private LocalDate dob;
+
     private Double gpa;
+
     private boolean active;
+
+    // Owning side: bảng students có cột department_id (FK → departments.id)
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "department_id", nullable = false)
     private Department department;
 
-    public Student() {
-        this.id = id;
-        this.studentCode = studentCode;
-        this.fullName = fullName;
-        this.email = email;
-        this.gender = gender;
-        this.dob = dob;
-        this.gpa = gpa;
-        this.active = active;
-        this.department = department;
-    }
-
     @Override
     public String toString() {
-        return "Student{" +
-                "id=" + id +
-                ", studentCode='" + studentCode + '\'' +
-                ", fullName='" + fullName + '\'' +
-                ", email='" + email + '\'' +
-                ", gender=" + gender +
-                ", dob=" + dob +
-                ", gpa=" + gpa +
-                ", active=" + active +
-                ", department=" + department +
-                '}';
+        return String.format("%s | %-15s | %-20s | %.1f | %s",
+                studentCode, fullName, email, gpa, active ? "active" : "inactive");
+        // KHÔNG in department → tránh LazyInitializationException
     }
 }

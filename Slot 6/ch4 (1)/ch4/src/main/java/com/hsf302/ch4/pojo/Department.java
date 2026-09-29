@@ -25,8 +25,8 @@ public class Department {
     @Column(nullable = false, length = 100)
     private String name;
 
-    // Khai báo thuộc tính students
-    @OneToMany(mappedBy = "department", cascade = CascadeType.ALL, orphanRemoval = true)
+    // Inverse side: "department" là TÊN FIELD bên Student
+    @OneToMany(mappedBy = "department")
     private List<Student> students = new ArrayList<>();
 
     public Department(String code, String name) {
