@@ -3,6 +3,7 @@ package com.hsf302.ch4.repository;
 import com.hsf302.ch4.pojo.Student;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.domain.Page;
@@ -75,4 +76,8 @@ public interface StudentRepository extends JpaRepository<Student, Long>,
     // ===== TODO 19 =====
     @Query("SELECT s FROM Student s WHERE s.department.code = :code AND s.active = true")
     Page<Student> findActiveByDepartment(@Param("code") String code, Pageable pageable);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("UPDATE Student s SET s.active = false WHERE s.gpa < :threshold AND s.active = true")
+    int deactivateLowGpa(@Param("threshold") double threshold);
 }

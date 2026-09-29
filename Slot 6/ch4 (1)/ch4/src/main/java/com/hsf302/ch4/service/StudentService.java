@@ -2,6 +2,7 @@ package com.hsf302.ch4.service;
 
 import com.hsf302.ch4.pojo.Student;
 import org.springframework.data.domain.Page;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -38,6 +39,11 @@ public interface StudentService {
 
     Page<Student> findActiveByDepartment(String deptCode, int pageIndex, int size);   // TODO 19
 
-    List<Student> search(String kw, String deptCode, Double minGpa, Boolean active);
-    Student updateGpa(String studentCode, double newGpa);
+    List<Student> search(String kw, String deptCode, Double minGpa, Boolean active);//24
+
+
+    Student updateGpa(String studentCode, double newGpa);//20
+
+    @Transactional
+    int deactivateLowGpa(double threshold);
 }
