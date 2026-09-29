@@ -29,13 +29,14 @@ public class ExerciseRunner implements CommandLineRunner {
         partB();
         partC();
         partD();
+        partE();
 
     }
 
     private void partB() { todo6(); todo7(); }
     private void partC() { todo8(); todo9(); todo10(); todo11(); }
     private void partD() { todo12(); todo13(); todo14(); todo15(); todo16(); todo17(); todo18(); todo19(); }
-
+    private void partE() { todo24(); }
 
     // ===== helpers =====
     private void title(String t) {
@@ -173,4 +174,9 @@ public class ExerciseRunner implements CommandLineRunner {
                     + ", totalPages=" + page.getTotalPages());
         }
         }
+    private void todo24() {
+        title("TODO 24 (Bonus): Specification");
+        printList("search(null, AI, 3.0, true)", studentService.search(null, "AI", 3.0, true));
+        printList("search(van, null, null, null)", studentService.search("van", null, null, null));
+    }
 }
