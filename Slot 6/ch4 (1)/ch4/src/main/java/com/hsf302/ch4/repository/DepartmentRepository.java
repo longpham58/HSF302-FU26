@@ -2,6 +2,9 @@ package com.hsf302.ch4.repository;
 
 import com.hsf302.ch4.pojo.Department;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,4 +23,8 @@ public interface DepartmentRepository extends JpaRepository<Department, Long> {
 
     @org.springframework.data.jpa.repository.Query("SELECT d FROM Department d LEFT JOIN FETCH d.students WHERE d.code = :code")
     Optional<Department> findByCodeWithStudents(@org.springframework.data.repository.query.Param("code") String code);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("UPDATE Student s SET s.department = :to WHERE s.department = :from")
+    int transferStudents(@Param("from") Department from, @Param("to") Department to);
 }

@@ -1,5 +1,6 @@
 package com.hsf302.ch4.service.impl;
 
+import com.hsf302.ch4.pojo.Department;
 import com.hsf302.ch4.pojo.Student;
 import com.hsf302.ch4.repository.StudentRepository;
 import com.hsf302.ch4.service.StudentService;
@@ -7,6 +8,9 @@ import com.hsf302.ch4.specification.StudentSpecs;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -186,4 +190,5 @@ public class StudentServiceImpl implements StudentService {
     public int deactivateLowGpa(double threshold) {
         return studentRepository.deactivateLowGpa(threshold);
     }
+
 }
