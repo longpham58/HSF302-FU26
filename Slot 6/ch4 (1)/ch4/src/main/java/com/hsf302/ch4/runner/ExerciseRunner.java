@@ -62,7 +62,19 @@ public class ExerciseRunner implements CommandLineRunner {
     }
 
     private void todo7() {
-        title("TODO 7");
+        title("TODO 7: Sort & Pageable");
+
+        // (a) GPA giảm dần
+        printList("All students order by GPA desc", studentService.findAllOrderByGpaDesc());
+
+        // (b) Trang THỨ 2 → index 1 (Spring Data đánh số trang từ 0)
+        org.springframework.data.domain.Page<com.hsf302.ch4.pojo.Student> page =
+                studentService.findPage(1, 3, "fullName");
+        printList("Page index " + page.getNumber() + " (size " + page.getSize() + ")", page.getContent());
+        System.out.println("totalElements=" + page.getTotalElements()
+                + ", totalPages=" + page.getTotalPages()
+                + ", hasNext=" + page.hasNext()
+                + ", hasPrevious=" + page.hasPrevious());
     }
 
     private void todo8() {
