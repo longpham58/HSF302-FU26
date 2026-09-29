@@ -20,4 +20,8 @@ public interface StudentService {
     List<Student> searchByName(String keyword);        // TODO 9a
     List<Student> findByEmailDomain(String domain);    // TODO 9b
     List<Student> findWithoutEmail();                  // TODO 9c
+
+    List<Student> findByGpaRange(double min, double max);   // TODO 10a
+    List<Student> findActiveByGender(com.hsf302.ch4.pojo.Gender gender);        // TODO 10b
+    List<Student> findBornAfter(java.time.LocalDate date);            // TODO 10c
 }
