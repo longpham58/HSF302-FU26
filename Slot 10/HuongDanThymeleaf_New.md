@@ -209,13 +209,13 @@ src/main/resources/static/
 | Rủi ro | Mất mạng → trang "trơn", không lỗi Java | Đặt sai thư mục → 404 file CSS/font |
 
 
-### ✅ Checklist TODO 0.3
+### 
+  ✅ Checklist TODO 0.3
 - [ ] Mở `http://localhost:8080/vendor/bootstrap/css/bootstrap.min.css` → thấy nội dung CSS.
 - [ ] Mở `http://localhost:8080/bootstrap-test.html` → khung xanh, có icon ✔, bấm ✕ thì khung biến mất.
 - [ ] **Tắt Wi-Fi** rồi F5 → vẫn như trên.
 - [ ] F12 → Network: không có dòng đỏ 404 (đặc biệt file `.woff2`); không có request tới `cdn.jsdelivr.net`.
 - [ ] (Nếu không chép file `.map`) chỉ có cảnh báo *"DevTools failed to load source map"* — vô hại, bỏ qua.
-
 ### ⚠️ Lỗi thường gặp với Bootstrap
 
 | Triệu chứng | Nguyên nhân | Cách sửa |
