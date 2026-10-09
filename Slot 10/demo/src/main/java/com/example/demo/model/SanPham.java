@@ -2,10 +2,16 @@ package com.example.demo.model;
 
 public class SanPham {
     private String ten;
-    private Double gia;          // wrapper: ô trống → null (int/double sẽ lỗi 400)
+    private Double gia;
     private Integer soLuong;
 
-    public SanPham() {}          // BẮT BUỘC: Spring tạo object rỗng rồi set từng field
+    public SanPham() {}
+
+    public SanPham(String ten, Double gia, Integer soLuong) {
+        this.ten = ten;
+        this.gia = gia;
+        this.soLuong = soLuong;
+    }
 
     public String getTen() { return ten; }
     public void setTen(String ten) { this.ten = ten; }
