@@ -19,6 +19,6 @@ public class SinhVienController {
         );
         model.addAttribute("sinhViens", danhSach);
         model.addAttribute("tieuDe", "Danh sách sinh viên");
-        return "sinhvien/danh-ssach";      // → templates/sinhvien/danh-sach.html
+        return "sinhvien/danh-sach";      // → templates/sinhvien/danh-sach.html
     }
 }
