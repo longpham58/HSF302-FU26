@@ -67,7 +67,7 @@ public class StudentController {
                          BindingResult bindingResult,
                          Model model,
                          RedirectAttributes ra) {
-        // 1. Kiểm tra nghiệp vụ: email trùng (chỉ khi email đã hợp lệ về định dạng)
+
         if (!bindingResult.hasFieldErrors("email")
                 && studentService.isEmailTaken(student.getEmail(), null)) {
             bindingResult.rejectValue("email", "duplicate", "Email đã tồn tại");
@@ -76,7 +76,7 @@ public class StudentController {
         if (bindingResult.hasErrors()) {
             return formView(model, false);
         }
-        // 3. Lưu DB — vẫn bắt lỗi UNIQUE phòng trường hợp 2 người submit cùng lúc
+
         try {
             studentService.create(student);
         } catch (DataIntegrityViolationException e) {
