@@ -15,15 +15,22 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Border;
+import javafx.scene.layout.BorderStroke;
+import javafx.scene.layout.BorderStrokeStyle;
 import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.layout.BorderWidths;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -32,20 +39,24 @@ public class LoginLayoutApp extends Application {
     private static final Map<String, String> ACCOUNTS = Map.of(
             "admin", "Admin@123",
             "student", "Student@123");
+    private static final Border DEBUG_BORDER = new Border(new BorderStroke(
+            Color.RED, BorderStrokeStyle.DASHED, CornerRadii.EMPTY, new BorderWidths(1)));
+
     private Scene scene;
     private String rememberedUser;
+    private final List<Region> containers = new ArrayList<>();
     private final TextField tfUser = new TextField();
     private final PasswordField pfPass = new PasswordField();
-    private final CheckBox chkRemember = new CheckBox("Remember me");
+    private final CheckBox chkRemember = new CheckBox("Ghi nhớ đăng nhập");
     private final Label lblError = new Label();
-    private final Button btnLogin = new Button("Log in");
-    private final Button btnExit = new Button("Exit");
+    private final Button btnLogin = new Button("Đăng nhập");
+    private final Button btnExit = new Button("Thoát");
 
     @Override
     public void start(Stage stage) {
         scene = new Scene(buildLoginView(), 680, 480);
         stage.setScene(scene);
-        stage.setTitle("B2 - Layout & Login Form");
+        stage.setTitle("B2 - Layout & Form đăng nhập");
         stage.setMinWidth(480);
         stage.setMinHeight(400);
         stage.show();
@@ -55,7 +66,7 @@ public class LoginLayoutApp extends Application {
         Label logo = new Label("HSF");
         logo.setStyle("-fx-background-color: #f27024; -fx-text-fill: white;"
                 + " -fx-font-weight: bold; -fx-padding: 4 8;");
-        Label title = new Label("Student Management System");
+        Label title = new Label("Hệ thống quản lý sinh viên");
         title.setStyle("-fx-font-size: 16; -fx-text-fill: white;");
         Label version = new Label("v1.0");
         version.setStyle("-fx-text-fill: #cfd8dc;");
@@ -67,11 +78,13 @@ public class LoginLayoutApp extends Application {
         header.setAlignment(Pos.CENTER_LEFT);
         header.setPadding(new Insets(10, 16, 10, 16));
         header.setStyle("-fx-background-color: #263238;");
-        return header;
+        return track(header);
     }
 
     private Node buildFooter() {
-        CheckBox chkDebug = new CheckBox("Show layout bounds (debug)");
+        CheckBox chkDebug = new CheckBox("Hiện viền layout (debug)");
+        chkDebug.setOnAction(event -> containers.forEach(region ->
+                region.setBorder(chkDebug.isSelected() ? DEBUG_BORDER : null)));
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
@@ -80,17 +93,17 @@ public class LoginLayoutApp extends Application {
         footer.setAlignment(Pos.CENTER_LEFT);
         footer.setPadding(new Insets(6, 16, 6, 16));
         footer.setStyle("-fx-background-color: #cfd8dc;");
-        return footer;
+        return track(footer);
     }
 
     private Node buildCenter() {
-        Label loginTitle = new Label("LOGIN");
+        Label loginTitle = new Label("ĐĂNG NHẬP");
         loginTitle.setStyle("-fx-font-size: 20; -fx-font-weight: bold;");
 
         tfUser.setText(rememberedUser == null ? "" : rememberedUser);
-        tfUser.setPromptText("Username");
+        tfUser.setPromptText("Tên đăng nhập");
         pfPass.clear();
-        pfPass.setPromptText("Password");
+        pfPass.setPromptText("Mật khẩu");
         chkRemember.setSelected(rememberedUser != null);
         lblError.setStyle("-fx-text-fill: #d93025;");
         lblError.setWrapText(true);
@@ -98,9 +111,9 @@ public class LoginLayoutApp extends Application {
         GridPane grid = new GridPane();
         grid.setHgap(10);
         grid.setVgap(10);
-        grid.add(new Label("Username"), 0, 0);
+        grid.add(new Label("Tên đăng nhập"), 0, 0);
         grid.add(tfUser, 1, 0);
-        grid.add(new Label("Password"), 0, 1);
+        grid.add(new Label("Mật khẩu"), 0, 1);
         grid.add(pfPass, 1, 1);
         grid.add(chkRemember, 1, 2);
         ColumnConstraints labelColumn = new ColumnConstraints(80);
@@ -128,6 +141,10 @@ public class LoginLayoutApp extends Application {
         center.setPadding(new Insets(20));
         center.setStyle("-fx-background-color: #eceff1;");
 
+        track(grid);
+        track(actions);
+        track(card);
+
         btnLogin.setOnAction(event -> handleLogin());
         btnExit.setOnAction(event -> confirmExit());
         tfUser.textProperty().addListener((obs, oldValue, newValue) -> lblError.setText(""));
@@ -136,7 +153,7 @@ public class LoginLayoutApp extends Application {
         });
         Platform.runLater(() -> (tfUser.getText().isEmpty() ? tfUser : pfPass).requestFocus());
 
-        return center;
+        return track(center);
     }
 
     private void handleLogin() {
@@ -144,13 +161,13 @@ public class LoginLayoutApp extends Application {
         String password = pfPass.getText();
         if (username.isEmpty() || password.isEmpty()) {
             lblError.setStyle("-fx-text-fill: #d93025;");
-            lblError.setText("Please enter both username and password.");
+            lblError.setText("Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu.");
             (username.isEmpty() ? tfUser : pfPass).requestFocus();
             return;
         }
         if (!password.equals(ACCOUNTS.get(username))) {
             lblError.setStyle("-fx-text-fill: #d93025;");
-            lblError.setText("Incorrect username or password.");
+            lblError.setText("Sai tên đăng nhập hoặc mật khẩu.");
             pfPass.clear();
             pfPass.requestFocus();
             return;
@@ -162,8 +179,8 @@ public class LoginLayoutApp extends Application {
 
     private void confirmExit() {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION,
-                "Do you want to exit the application?", ButtonType.YES, ButtonType.NO);
-        alert.setTitle("Confirm exit");
+                "Bạn muốn thoát ứng dụng?", ButtonType.YES, ButtonType.NO);
+        alert.setTitle("Xác nhận thoát");
         alert.setHeaderText(null);
         if (scene.getWindow() != null) alert.initOwner(scene.getWindow());
         if (alert.showAndWait().orElse(ButtonType.NO) == ButtonType.YES) {
@@ -172,39 +189,47 @@ public class LoginLayoutApp extends Application {
     }
 
     private Parent buildLoginView() {
+        containers.clear();
         BorderPane root = new BorderPane();
         root.setTop(buildHeader());
         root.setCenter(buildCenter());
         root.setBottom(buildFooter());
-        return root;
+        return track(root);
     }
 
     private Parent buildHomeView(String username) {
-        Label welcome = new Label("Welcome, " + username + "!");
+        containers.clear();
+        Label welcome = new Label("Xin chào, " + username + "!");
         welcome.setStyle("-fx-font-size: 22;");
 
         VBox menu = new VBox(8);
-        for (String item : List.of("Home", "Students", "Courses", "Grades")) {
+        for (String item : List.of("Trang chủ", "Sinh viên", "Môn học", "Điểm")) {
             Button menuButton = new Button(item);
             menuButton.setMaxWidth(Double.MAX_VALUE);
-            menuButton.setOnAction(event -> welcome.setText("You are viewing: " + item));
+            menuButton.setOnAction(event -> welcome.setText("Bạn đang ở: " + item));
             menu.getChildren().add(menuButton);
         }
 
         Region spacer = new Region();
         VBox.setVgrow(spacer, Priority.ALWAYS);
-        Button logout = new Button("Log out");
+        Button logout = new Button("Đăng xuất");
         logout.setMaxWidth(Double.MAX_VALUE);
         logout.setOnAction(event -> scene.setRoot(buildLoginView()));
         menu.getChildren().addAll(spacer, logout);
         menu.setPadding(new Insets(10));
         menu.setPrefWidth(160);
         menu.setStyle("-fx-background-color: #37474f;");
+        track(menu);
 
         BorderPane home = new BorderPane(new StackPane(welcome));
         home.setTop(buildHeader());
         home.setLeft(menu);
-        return home;
+        return track(home);
+    }
+
+    private <T extends Region> T track(T region) {
+        containers.add(region);
+        return region;
     }
 
     public static void main(String[] args) {
