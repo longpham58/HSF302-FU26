@@ -1,6 +1,8 @@
 package com.fu.ch08.b1;
 
 import javafx.application.Application;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -18,6 +20,8 @@ import javafx.stage.Stage;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 
 /**
  * Entry point for the Chapter 8, B1 drink-ordering application.
@@ -94,6 +98,58 @@ public class DrinkOrderApp extends Application {
         stage.setTitle("B1 - Đặt đồ uống");
         stage.show();
         tfName.requestFocus();
+        registerEvents();
+    }
+
+    private void registerEvents() {
+        // Method reference: the longer calculation logic is implemented in the next step.
+        btnCalc.setOnAction(this::handleCalc);
+
+        // Lambda handler shared by the reset button for now; reset behavior follows in step 5.
+        btnClear.setOnAction(e -> log("Bấm Làm lại"));
+
+        // Anonymous EventHandler class.
+        cbDrink.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                String drink = cbDrink.getValue();
+                if (drink != null) {
+                    log(String.format("Chọn đồ uống: %s (%,d đ)", drink, MENU.get(drink)));
+                }
+            }
+        });
+
+        tfName.setOnAction(e -> cbDrink.requestFocus());
+
+        EventHandler<ActionEvent> onCheck = e -> {
+            CheckBox source = (CheckBox) e.getSource();
+            log(String.format("%s: %s", source.getText(),
+                    source.isSelected() ? "chọn" : "bỏ chọn"));
+        };
+        chkPearl.setOnAction(onCheck);
+        chkJelly.setOnAction(onCheck);
+        chkLessSugar.setOnAction(onCheck);
+
+        tgSize.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
+            if (newToggle != null) {
+                log("Đổi size → " + ((RadioButton) newToggle).getText());
+            }
+        });
+
+        tfQty.textProperty().addListener((obs, oldValue, newValue) -> {
+            if (!newValue.matches("\\d{0,2}")) {
+                tfQty.setText(oldValue);
+            }
+        });
+    }
+
+    private void handleCalc(ActionEvent event) {
+        log("Bấm Tính tiền; phần tính toán sẽ được thêm ở Bước 5");
+    }
+
+    private void log(String message) {
+        String time = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"));
+        taLog.appendText(String.format("[%s] %s%n", time, message));
     }
 
     public static void main(String[] args) {
