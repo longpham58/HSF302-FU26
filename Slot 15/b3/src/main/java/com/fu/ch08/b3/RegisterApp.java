@@ -78,6 +78,7 @@ public class RegisterApp extends Application {
     @Override
     public void start(Stage stage) {
         setupControls();
+        registerEvents();
         registerView = buildRegisterView();
         scene = new Scene(registerView, 580, 660);
         stage.setScene(scene);
@@ -213,6 +214,69 @@ public class RegisterApp extends Application {
 
     private boolean vMajor() {
         return check(errMajor, cbMajor.getValue() != null, "Vui lòng chọn ngành.");
+    }
+
+    private void registerEvents() {
+        onFocusLost(tfFullName, this::vFullName);
+        onFocusLost(tfEmail, this::vEmail);
+        onFocusLost(tfUsername, this::vUsername);
+        onFocusLost(pfPassword, this::vPassword);
+        onFocusLost(pfConfirm, this::vConfirm);
+
+        tgGender.selectedToggleProperty().addListener((obs, oldValue, newValue) -> vGender());
+        dpDob.valueProperty().addListener((obs, oldValue, newValue) -> vDob());
+        cbMajor.valueProperty().addListener((obs, oldValue, newValue) -> vMajor());
+
+        pfPassword.textProperty().addListener((obs, oldValue, newValue) -> {
+            updateStrength(newValue);
+            if (!pfConfirm.getText().isEmpty()) vConfirm();
+        });
+
+        btnRegister.setOnAction(event -> validateAll());
+        btnReset.setOnAction(event -> {
+            if (AlertUtil.confirm("Xóa toàn bộ dữ liệu đã nhập?")) resetForm();
+        });
+    }
+
+    private void onFocusLost(Node node, BooleanSupplier validator) {
+        node.focusedProperty().addListener((obs, wasFocused, isFocused) -> {
+            if (!isFocused) validator.getAsBoolean();
+        });
+    }
+
+    private void validateAll() {
+        boolean valid = vFullName() & vEmail() & vUsername() & vPassword()
+                & vConfirm() & vGender() & vDob() & vMajor();
+        if (!valid) AlertUtil.warn("Vui lòng sửa các ô đang báo lỗi.");
+    }
+
+    private void updateStrength(String password) {
+        int score = 0;
+        if (password.length() >= 8) score++;
+        if (password.matches(".*[a-z].*") && password.matches(".*[A-Z].*")) score++;
+        if (password.matches(".*\\d.*")) score++;
+        if (password.matches(".*[^\\w\\s].*")) score++;
+
+        pbStrength.setProgress(score / 4.0);
+        pbStrength.setStyle("-fx-accent: " + LEVEL_COLOR[score] + ";");
+        lblStrength.setText(password.isEmpty() ? "" : LEVEL_TEXT[score]);
+        lblStrength.setStyle("-fx-text-fill: " + LEVEL_COLOR[score] + ";");
+    }
+
+    private void resetForm() {
+        Stream.of(tfFullName, tfEmail, tfUsername, pfPassword, pfConfirm)
+                .forEach(TextInputControl::clear);
+        tgGender.selectToggle(null);
+        dpDob.setValue(null);
+        cbMajor.setValue(null);
+        Stream.of(chkSport, chkMusic, chkGame, chkReading, chkAgree)
+                .forEach(checkBox -> checkBox.setSelected(false));
+        updateStrength("");
+
+        Stream.of(errFullName, errEmail, errUsername, errPassword, errConfirm,
+                        errGender, errDob, errMajor)
+                .forEach(error -> error.setText(""));
+        tfFullName.requestFocus();
     }
 
     public static void main(String[] args) {
