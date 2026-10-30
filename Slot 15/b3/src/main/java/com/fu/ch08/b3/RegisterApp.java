@@ -33,6 +33,7 @@ import javafx.stage.Stage;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
+import java.util.Locale;
 import java.util.function.BooleanSupplier;
 import java.util.stream.Stream;
 
@@ -84,6 +85,7 @@ public class RegisterApp extends Application {
         stage.setScene(scene);
         stage.setTitle("B3 - Đăng ký tài khoản");
         stage.show();
+        Platform.runLater(tfFullName::requestFocus);
     }
 
     private void setupControls() {
@@ -144,6 +146,7 @@ public class RegisterApp extends Application {
         HBox actions = new HBox(10, btnRegister, btnReset);
         actions.setAlignment(Pos.CENTER_RIGHT);
         Hyperlink linkLogin = new Hyperlink("Đã có tài khoản? Đăng nhập");
+        linkLogin.setOnAction(event -> scene.setRoot(buildLoginView("")));
 
         VBox form = new VBox(12, title, grid, chkAgree, actions, linkLogin);
         form.setPadding(new Insets(20));
@@ -179,7 +182,7 @@ public class RegisterApp extends Application {
     }
 
     private boolean vUsername() {
-        String username = tfUsername.getText().trim().toLowerCase();
+        String username = tfUsername.getText().trim().toLowerCase(Locale.ROOT);
         if (!username.matches("[a-z0-9_]{3,20}")) {
             return check(errUsername, false,
                     "Tên đăng nhập phải có 3–20 ký tự: chữ thường, số hoặc dấu gạch dưới.");
@@ -232,7 +235,7 @@ public class RegisterApp extends Application {
             if (!pfConfirm.getText().isEmpty()) vConfirm();
         });
 
-        btnRegister.setOnAction(event -> validateAll());
+        btnRegister.setOnAction(event -> handleRegister());
         btnReset.setOnAction(event -> {
             if (AlertUtil.confirm("Xóa toàn bộ dữ liệu đã nhập?")) resetForm();
         });
@@ -242,12 +245,6 @@ public class RegisterApp extends Application {
         node.focusedProperty().addListener((obs, wasFocused, isFocused) -> {
             if (!isFocused) validator.getAsBoolean();
         });
-    }
-
-    private void validateAll() {
-        boolean valid = vFullName() & vEmail() & vUsername() & vPassword()
-                & vConfirm() & vGender() & vDob() & vMajor();
-        if (!valid) AlertUtil.warn("Vui lòng sửa các ô đang báo lỗi.");
     }
 
     private void updateStrength(String password) {
@@ -277,6 +274,93 @@ public class RegisterApp extends Application {
                         errGender, errDob, errMajor)
                 .forEach(error -> error.setText(""));
         tfFullName.requestFocus();
+    }
+
+    private void handleRegister() {
+        boolean valid = vFullName() & vEmail() & vUsername() & vPassword()
+                & vConfirm() & vGender() & vDob() & vMajor();
+        if (!valid) {
+            AlertUtil.warn("Vui lòng sửa các ô đang báo lỗi.");
+            return;
+        }
+
+        List<String> hobbies = Stream.of(chkSport, chkMusic, chkGame, chkReading)
+                .filter(CheckBox::isSelected)
+                .map(CheckBox::getText)
+                .toList();
+        User user = new User(
+                tfFullName.getText().trim(),
+                tfEmail.getText().trim(),
+                tfUsername.getText().trim().toLowerCase(Locale.ROOT),
+                pfPassword.getText(),
+                ((RadioButton) tgGender.getSelectedToggle()).getText(),
+                dpDob.getValue(),
+                cbMajor.getValue(),
+                hobbies);
+        UserStore.add(user);
+
+        AlertUtil.info("Đăng ký thành công!\nTên đăng nhập: %s\nNgành: %s\nSở thích: %s"
+                .formatted(user.username(), user.major(),
+                        hobbies.isEmpty() ? "(không có)" : String.join(", ", hobbies)));
+        resetForm();
+        scene.setRoot(buildLoginView(user.username()));
+    }
+
+    private Parent buildLoginView(String prefillUsername) {
+        Label title = new Label("ĐĂNG NHẬP");
+        title.setStyle("-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: #1a73e8;");
+
+        TextField tfUser = new TextField(prefillUsername);
+        tfUser.setPromptText("Tên đăng nhập");
+        PasswordField pfPass = new PasswordField();
+        pfPass.setPromptText("Mật khẩu");
+        Label message = new Label();
+        message.setStyle("-fx-text-fill: #d93025;");
+        message.setWrapText(true);
+
+        Button btnLogin = new Button("Đăng nhập");
+        btnLogin.setDefaultButton(true);
+        btnLogin.setMaxWidth(Double.MAX_VALUE);
+        Hyperlink linkRegister = new Hyperlink("Chưa có tài khoản? Đăng ký");
+        linkRegister.setOnAction(event -> scene.setRoot(registerView));
+
+        btnLogin.setOnAction(event -> {
+            if (tfUser.getText().isBlank() || pfPass.getText().isEmpty()) {
+                message.setText("Vui lòng nhập tên đăng nhập và mật khẩu.");
+                return;
+            }
+            UserStore.login(tfUser.getText(), pfPass.getText()).ifPresentOrElse(
+                    user -> {
+                        message.setText("");
+                        AlertUtil.info("Xin chào %s!\nNgành: %s"
+                                .formatted(user.fullName(), user.major()));
+                    },
+                    () -> {
+                        message.setText("Sai tên đăng nhập hoặc mật khẩu.");
+                        pfPass.clear();
+                        pfPass.requestFocus();
+                    });
+        });
+
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.addRow(0, new Label("Tên đăng nhập"), tfUser);
+        grid.addRow(1, new Label("Mật khẩu"), pfPass);
+        ColumnConstraints labelColumn = new ColumnConstraints(110);
+        ColumnConstraints inputColumn = new ColumnConstraints();
+        inputColumn.setHgrow(Priority.ALWAYS);
+        grid.getColumnConstraints().addAll(labelColumn, inputColumn);
+
+        VBox box = new VBox(12, title, grid, message, btnLogin, linkRegister);
+        box.setAlignment(Pos.CENTER);
+        box.setMaxWidth(360);
+        StackPane root = new StackPane(box);
+        root.setPadding(new Insets(20));
+
+        Node focusTarget = prefillUsername.isEmpty() ? tfUser : pfPass;
+        Platform.runLater(focusTarget::requestFocus);
+        return root;
     }
 
     public static void main(String[] args) {
