@@ -1,6 +1,8 @@
 package com.fu.ch08.b1;
 
 import javafx.application.Application;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
@@ -9,13 +11,27 @@ import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * Entry point for the Chapter 8, B1 drink-ordering application.
  * UI setup will be added in the following steps.
  */
 public class DrinkOrderApp extends Application {
+    private static final Map<String, Integer> MENU = new LinkedHashMap<>();
+    static {
+        MENU.put("Cà phê sữa", 25_000);
+        MENU.put("Trà sữa", 30_000);
+        MENU.put("Nước cam", 28_000);
+        MENU.put("Sinh tố bơ", 35_000);
+    }
+
     // Controls are fields so the event handlers and other methods can access them.
     private final TextField tfName = new TextField();
     private final ComboBox<String> cbDrink = new ComboBox<>();
@@ -34,8 +50,50 @@ public class DrinkOrderApp extends Application {
 
     @Override
     public void start(Stage stage) {
+        tfName.setPromptText("Nhập tên khách hàng");
+        cbDrink.getItems().addAll(MENU.keySet());
+        cbDrink.setPromptText("-- Chọn đồ uống --");
+        cbDrink.setMaxWidth(Double.MAX_VALUE);
+
+        rbS.setToggleGroup(tgSize);
+        rbM.setToggleGroup(tgSize);
+        rbL.setToggleGroup(tgSize);
+        rbS.setUserData(0);
+        rbM.setUserData(5_000);
+        rbL.setUserData(10_000);
+        tgSize.selectToggle(rbM);
+
+        tfQty.setPrefColumnCount(4);
+        taLog.setEditable(false);
+        taLog.setPrefRowCount(8);
+        taLog.setTooltip(new javafx.scene.control.Tooltip("Double-click để xóa nhật ký"));
+        btnCalc.setDefaultButton(true);
+
+        GridPane form = new GridPane();
+        form.setHgap(10);
+        form.setVgap(10);
+        form.addRow(0, new javafx.scene.control.Label("Tên khách:"), tfName);
+        form.addRow(1, new javafx.scene.control.Label("Đồ uống:"), cbDrink);
+        form.addRow(2, new javafx.scene.control.Label("Size:"), new HBox(15, rbS, rbM, rbL));
+        form.addRow(3, new javafx.scene.control.Label("Tùy chọn:"),
+                new HBox(15, chkPearl, chkJelly, chkLessSugar));
+        form.addRow(4, new javafx.scene.control.Label("Số lượng:"), tfQty);
+
+        HBox buttons = new HBox(10, btnCalc, btnClear);
+        buttons.setAlignment(Pos.CENTER_RIGHT);
+
+        javafx.scene.control.Label title = new javafx.scene.control.Label("ĐẶT ĐỒ UỐNG");
+        title.setStyle("-fx-font-size: 18; -fx-font-weight: bold;");
+
+        VBox root = new VBox(12, title, form, buttons, lblResult,
+                new javafx.scene.control.Label("Nhật ký sự kiện:"), taLog);
+        root.setPadding(new Insets(16));
+
+        javafx.scene.Scene scene = new javafx.scene.Scene(root, 540, 580);
+        stage.setScene(scene);
         stage.setTitle("B1 - Đặt đồ uống");
         stage.show();
+        tfName.requestFocus();
     }
 
     public static void main(String[] args) {
