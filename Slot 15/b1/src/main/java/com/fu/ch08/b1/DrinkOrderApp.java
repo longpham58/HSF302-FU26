@@ -5,6 +5,8 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
@@ -94,6 +96,13 @@ public class DrinkOrderApp extends Application {
         root.setPadding(new Insets(16));
 
         javafx.scene.Scene scene = new javafx.scene.Scene(root, 540, 580);
+        scene.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+            if (event.getCode() == KeyCode.ESCAPE) {
+                reset();
+                log("ESC → làm lại form");
+                event.consume();
+            }
+        });
         stage.setScene(scene);
         stage.setTitle("B1 - Đặt đồ uống");
         stage.show();
@@ -144,6 +153,15 @@ public class DrinkOrderApp extends Application {
             }
         });
 
+        // Mouse events: button hover feedback and double-click to clear the event log.
+        btnCalc.setOnMouseEntered(e ->
+                btnCalc.setStyle("-fx-background-color: #1a73e8; -fx-text-fill: white;"));
+        btnCalc.setOnMouseExited(e -> btnCalc.setStyle(""));
+        taLog.setOnMouseClicked(e -> {
+            if (e.getClickCount() == 2) {
+                taLog.clear();
+            }
+        });
     }
 
     private void handleCalc(ActionEvent event) {
