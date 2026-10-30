@@ -1,12 +1,15 @@
 package com.fu.ch08.b2;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
@@ -109,6 +112,8 @@ public class LoginLayoutApp extends Application {
             button.setMaxWidth(Double.MAX_VALUE);
             HBox.setHgrow(button, Priority.ALWAYS);
         }
+        btnLogin.setDefaultButton(true);
+        btnExit.setCancelButton(true);
         HBox actions = new HBox(10, btnLogin, btnExit);
 
         VBox card = new VBox(14, loginTitle, grid, lblError, actions);
@@ -122,7 +127,49 @@ public class LoginLayoutApp extends Application {
         StackPane center = new StackPane(card);
         center.setPadding(new Insets(20));
         center.setStyle("-fx-background-color: #eceff1;");
+
+        btnLogin.setOnAction(event -> handleLogin());
+        btnExit.setOnAction(event -> confirmExit());
+        tfUser.textProperty().addListener((obs, oldValue, newValue) -> lblError.setText(""));
+        pfPass.textProperty().addListener((obs, oldValue, newValue) -> {
+            if (!newValue.isEmpty()) lblError.setText("");
+        });
+        Platform.runLater(() -> (tfUser.getText().isEmpty() ? tfUser : pfPass).requestFocus());
+
         return center;
+    }
+
+    private void handleLogin() {
+        String username = tfUser.getText().trim().toLowerCase();
+        String password = pfPass.getText();
+        if (username.isEmpty() || password.isEmpty()) {
+            lblError.setStyle("-fx-text-fill: #d93025;");
+            lblError.setText("Please enter both username and password.");
+            (username.isEmpty() ? tfUser : pfPass).requestFocus();
+            return;
+        }
+        if (!password.equals(ACCOUNTS.get(username))) {
+            lblError.setStyle("-fx-text-fill: #d93025;");
+            lblError.setText("Incorrect username or password.");
+            pfPass.clear();
+            pfPass.requestFocus();
+            return;
+        }
+
+        rememberedUser = chkRemember.isSelected() ? username : null;
+        lblError.setStyle("-fx-text-fill: #188038;");
+        lblError.setText("Login successful.");
+    }
+
+    private void confirmExit() {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION,
+                "Do you want to exit the application?", ButtonType.YES, ButtonType.NO);
+        alert.setTitle("Confirm exit");
+        alert.setHeaderText(null);
+        if (scene.getWindow() != null) alert.initOwner(scene.getWindow());
+        if (alert.showAndWait().orElse(ButtonType.NO) == ButtonType.YES) {
+            Platform.exit();
+        }
     }
 
     private Parent buildLoginView() {
