@@ -157,8 +157,7 @@ public class LoginLayoutApp extends Application {
         }
 
         rememberedUser = chkRemember.isSelected() ? username : null;
-        lblError.setStyle("-fx-text-fill: #188038;");
-        lblError.setText("Login successful.");
+        scene.setRoot(buildHomeView(username));
     }
 
     private void confirmExit() {
@@ -178,6 +177,34 @@ public class LoginLayoutApp extends Application {
         root.setCenter(buildCenter());
         root.setBottom(buildFooter());
         return root;
+    }
+
+    private Parent buildHomeView(String username) {
+        Label welcome = new Label("Welcome, " + username + "!");
+        welcome.setStyle("-fx-font-size: 22;");
+
+        VBox menu = new VBox(8);
+        for (String item : List.of("Home", "Students", "Courses", "Grades")) {
+            Button menuButton = new Button(item);
+            menuButton.setMaxWidth(Double.MAX_VALUE);
+            menuButton.setOnAction(event -> welcome.setText("You are viewing: " + item));
+            menu.getChildren().add(menuButton);
+        }
+
+        Region spacer = new Region();
+        VBox.setVgrow(spacer, Priority.ALWAYS);
+        Button logout = new Button("Log out");
+        logout.setMaxWidth(Double.MAX_VALUE);
+        logout.setOnAction(event -> scene.setRoot(buildLoginView()));
+        menu.getChildren().addAll(spacer, logout);
+        menu.setPadding(new Insets(10));
+        menu.setPrefWidth(160);
+        menu.setStyle("-fx-background-color: #37474f;");
+
+        BorderPane home = new BorderPane(new StackPane(welcome));
+        home.setTop(buildHeader());
+        home.setLeft(menu);
+        return home;
     }
 
     public static void main(String[] args) {
