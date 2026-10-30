@@ -18,16 +18,16 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * Entry point for the Chapter 8, B1 drink-ordering application.
- * UI setup will be added in the following steps.
  */
 public class DrinkOrderApp extends Application {
+    private static final int TOPPING_PRICE = 5_000;
     private static final Map<String, Integer> MENU = new LinkedHashMap<>();
     static {
         MENU.put("Cà phê sữa", 25_000);
@@ -105,8 +105,10 @@ public class DrinkOrderApp extends Application {
         // Method reference: the longer calculation logic is implemented in the next step.
         btnCalc.setOnAction(this::handleCalc);
 
-        // Lambda handler shared by the reset button for now; reset behavior follows in step 5.
-        btnClear.setOnAction(e -> log("Bấm Làm lại"));
+        btnClear.setOnAction(e -> {
+            reset();
+            log("Bấm Làm lại");
+        });
 
         // Anonymous EventHandler class.
         cbDrink.setOnAction(new EventHandler<ActionEvent>() {
@@ -141,10 +143,70 @@ public class DrinkOrderApp extends Application {
                 tfQty.setText(oldValue);
             }
         });
+
     }
 
     private void handleCalc(ActionEvent event) {
-        log("Bấm Tính tiền; phần tính toán sẽ được thêm ở Bước 5");
+        String name = tfName.getText().trim();
+        String drink = cbDrink.getValue();
+        String qtyText = tfQty.getText();
+
+        if (name.isEmpty()) {
+            showError("Vui lòng nhập tên khách");
+            tfName.requestFocus();
+            return;
+        }
+        if (drink == null) {
+            showError("Vui lòng chọn đồ uống");
+            cbDrink.requestFocus();
+            return;
+        }
+        if (tgSize.getSelectedToggle() == null) {
+            showError("Vui lòng chọn size");
+            return;
+        }
+
+        int quantity = qtyText.isEmpty() ? 0 : Integer.parseInt(qtyText);
+        if (quantity < 1 || quantity > 20) {
+            showError("Số lượng từ 1 đến 20");
+            tfQty.requestFocus();
+            return;
+        }
+
+        RadioButton size = (RadioButton) tgSize.getSelectedToggle();
+        int unitPrice = MENU.get(drink) + (int) size.getUserData();
+        if (chkPearl.isSelected()) unitPrice += TOPPING_PRICE;
+        if (chkJelly.isSelected()) unitPrice += TOPPING_PRICE;
+
+        int total = unitPrice * quantity;
+        boolean discounted = quantity >= 5;
+        if (discounted) total = total * 90 / 100;
+
+        lblResult.setStyle("-fx-text-fill: #188038; -fx-font-weight: bold;");
+        lblResult.setText(String.format("%s: %d × %s size %s%s → %,d đ%s",
+                name, quantity, drink, size.getText().charAt(0),
+                chkLessSugar.isSelected() ? " (ít đường)" : "", total,
+                discounted ? " (đã giảm 10%)" : ""));
+        log(String.format("Tính tiền: %,d đ", total));
+    }
+
+    private void showError(String message) {
+        lblResult.setStyle("-fx-text-fill: #d93025;");
+        lblResult.setText(message);
+        log("Lỗi: " + message);
+    }
+
+    private void reset() {
+        tfName.clear();
+        cbDrink.setValue(null);
+        tgSize.selectToggle(rbM);
+        chkPearl.setSelected(false);
+        chkJelly.setSelected(false);
+        chkLessSugar.setSelected(false);
+        tfQty.setText("1");
+        lblResult.setStyle("");
+        lblResult.setText("Chưa có đơn hàng");
+        tfName.requestFocus();
     }
 
     private void log(String message) {
