@@ -17,3 +17,11 @@ BEGIN
         (N'Hoàng Văn Em', 'em.hv@gmail.com', 23);
 END;
 GO
+
+-- Restore the demo names if this seed data was imported with a lossy encoding.
+UPDATE dbo.students SET name = N'Nguyễn Văn An' WHERE email = 'an.nv@fpt.edu.vn';
+UPDATE dbo.students SET name = N'Trần Thị Bình' WHERE email = 'binh.tt@fpt.edu.vn';
+UPDATE dbo.students SET name = N'Lê Văn Cường' WHERE email = 'cuong.lv@gmail.com';
+UPDATE dbo.students SET name = N'Phạm Thị Dung' WHERE email = 'dung.pt@fpt.edu.vn';
+UPDATE dbo.students SET name = N'Hoàng Văn Em' WHERE email = 'em.hv@gmail.com';
+GO
