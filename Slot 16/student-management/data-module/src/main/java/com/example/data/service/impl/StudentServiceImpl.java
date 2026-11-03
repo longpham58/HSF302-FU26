@@ -1,9 +1,10 @@
-package com.example.data.service;
+package com.example.data.service.impl;
 
 import com.example.data.exception.StudentNotFoundException;
 import com.example.data.exception.ValidationException;
 import com.example.data.pojo.Student;
 import com.example.data.repository.StudentRepository;
+import com.example.data.service.StudentService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
